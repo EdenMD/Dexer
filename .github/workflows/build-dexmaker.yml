@@ -1,0 +1,33 @@
+name: Build DEX with Dexmaker
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  build-dex:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven' # Cache Maven dependencies
+
+    - name: Build and Generate DEX
+      run: |
+        # Use Maven to compile and run the DexGenerator, which creates build/dex/output.dex
+        mvn clean compile exec:java
+
+    - name: Upload DEX files as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dexmaker-output
+        path: build/dex/output.dex
